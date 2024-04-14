@@ -18,6 +18,11 @@ class Body(BaseModel):
     length: Union[int, None] = 20
 
 
+# Create a Pydantic model name Text with a single attribute text of type str.
+class Text(BaseModel):
+    text: str
+
+
 @app.get('/')
 def root():
     html_path = join(static_path, "index.html")
@@ -27,7 +32,8 @@ def root():
 @app.post('/generate')
 def generate(body: Body):
     """
-    Generate a pseudo-random token ID of twenty characters by default. Example POST request body:
+    Generate a pseudo-random token ID of twenty characters by default.
+    Example POST request body:
 
     {
         "length": 20
@@ -35,3 +41,15 @@ def generate(body: Body):
     """
     string = base64.b64encode(os.urandom(64))[:body.length].decode('utf-8')
     return {'token': string}
+
+
+# Create a FastAPI endpoint that accepts a POST request with a JSON body
+# containing a single field called "text" and returns a checksum of the text.
+# Use base64 encoding to calculate the checksum.
+@app.post('/checksum')
+def checksum(text: Text):
+    """
+    Generate a checksum of the input text using base64 encoding.
+    """
+    checksum = base64.b64encode(text.text.encode('utf-8')).decode('utf-8')
+    return {'checksum': checksum}
